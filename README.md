@@ -5,6 +5,12 @@
 ## Description
 This project aims to develop and disseminate a robust, reproducible quality assurance (QA) protocol for all kinds of MR sequences used at UAB's Research MRI Core (RMRIC).
 
+The notebook currently supports basic analyses of fBIRN phantom fMRI as described in Friedman and Glover (JMRI 23:827-839 2006 https://doi.org/10.1002/jmri.20583). The following images and metrics are calculated:
+- SNR
+- SFNR
+- Percent fluctuation
+- Percent drift
+
 ## Installation
 To run the python scripts and jupyter notebook, you will need to have python installed. Conda (Anaconda or Miniconda) is also very helpful. The conda environment is specified in `environment.yml`.
 
