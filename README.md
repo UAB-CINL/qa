@@ -23,10 +23,15 @@ Create a new conda environment to use with this project:
 `conda env create -f environment.yml`
 
 Activate the environment before running any scripts or opening any notebooks:
-`conda activate prismaqa`
+`conda activate mriqa`
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+The processing scripts use the python module nibabel to read image arrays from files in NIFTI format. Images from the MRI scanner are in DICOM format. To convert DICOM datasets to BIDS compliant NIFTI format, use heudiconv:
+`heudiconv -s YOUR_SUBJECT_NAME -ss YOUR_SESSION_NAME --files PATH_THAT_INCLUDES_ALL_YOUR_DICOM_FILES -o PATH_TO_YOUR_NIFTI_OUTPUT -f PATH_TO_YOUR_HEURISTIC_FILE -c dcm2niix -b --overwrite`
+For QA analysis:
+- YOUR_SUBJECT_NAME = fbirn
+- YOUR_SESSION_NAME = Qa_MMDDYYY_CINL####, where MMDDYYYY is the date of the scan, and #### is the 4-digit CINL number
+
 
 ## Support
 If you need help with any of the scripts in this project, please contact us at cinl@uab.edu.
