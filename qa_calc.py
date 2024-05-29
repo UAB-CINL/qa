@@ -6,9 +6,12 @@ from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.dates as mdates
 import numpy as np
 import os
 import glob
+import re
+from datetime import datetime
 
 # load proxy images from each session
 code_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,9 +25,22 @@ snr_values = np.zeros(len(os.listdir(subject_dir)))
 percent_drift_values = np.zeros(len(os.listdir(subject_dir)))
 percent_fluctuation_values = np.zeros(len(os.listdir(subject_dir)))
 
+dates = []
+
 for index, session_dir in enumerate(glob.glob(os.path.join(subject_dir, 'ses-Qa*'))):
     nii_file = glob.glob(os.path.join(subject_dir, session_dir, 'func', '*.nii.gz'))
     fates = nib.load(nii_file[0])
+
+    # get the date string from the session directory
+    match = re.search(r'\d{8}', nii_file[0])
+    if match:
+        date_str = match.group()
+        try:
+            dates.append(datetime.strptime(date_str, '%m%d%Y'))
+        except ValueError:
+            print("The date format is not correct.")
+    else:
+        print("No 8-digit date string found.")
 
     # request array data from proxy images
     fates_data = fates.get_fdata()
@@ -130,3 +146,26 @@ print(ssnvar_values)
 print(snr_values)
 print(percent_drift_values)
 print(percent_fluctuation_values)
+print(dates)
+
+combined = list(zip(dates, mean_signal_values, sfnr_values, ssnvar_values, snr_values, percent_drift_values, percent_fluctuation_values))
+combined.sort()
+sorted_dates, sorted_mean_signal_values, sorted_sfnr_values, sorted_ssnvar_values, sorted_snr_values, sorted_percent_drift_values, sorted_percent_fluctuation_values = zip(*combined)
+print(sorted_dates)
+print(sorted_mean_signal_values)
+
+fig, axs = plt.subplots(3, 2, sharex=True)
+axs[0,0].plot(sorted_dates, sorted_mean_signal_values, marker='o')
+axs[0,0].set_title("Mean Signal")
+axs[0,1].plot(sorted_dates, sorted_sfnr_values, marker='o')
+axs[0,1].set_title("Signal-to-Fluctuation Noise Ratio")
+axs[1,0].plot(sorted_dates, sorted_ssnvar_values, marker='o')
+axs[1,0].set_title("Static Spatial Noise Variance")
+axs[1,1].plot(sorted_dates, sorted_snr_values, marker='o')
+axs[1,1].set_title("Signal-to-Noise Ratio")
+axs[2,0].plot(sorted_dates, sorted_percent_drift_values, marker='o')
+axs[2,0].set_title("Percent Drift")
+axs[2,1].plot(sorted_dates, sorted_percent_fluctuation_values, marker='o')
+axs[2,1].set_title("Percent Fluctuation")
+plt.gcf().autofmt_xdate()
+plt.show()
