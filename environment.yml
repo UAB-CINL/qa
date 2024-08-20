@@ -1,4 +1,4 @@
-name: mriqa
+name: mriqa-env
 channels:
   - conda-forge
   - defaults

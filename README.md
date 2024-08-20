@@ -30,7 +30,7 @@ The processing scripts use the python module nibabel to read image arrays from f
 `heudiconv -s YOUR_SUBJECT_NAME -ss YOUR_SESSION_NAME --files PATH_THAT_INCLUDES_ALL_YOUR_DICOM_FILES -o PATH_TO_YOUR_NIFTI_OUTPUT -f PATH_TO_YOUR_HEURISTIC_FILE -c dcm2niix -b --overwrite`
 For QA analysis:
 - YOUR_SUBJECT_NAME = fbirn
-- YOUR_SESSION_NAME = Qa_MMDDYYY_CINL####, where MMDDYYYY is the date of the scan, and #### is the 4-digit CINL number
+- YOUR_SESSION_NAME = Qa_YYYYMMDD_CINL####, where YYYYMMDD is the date of the scan, and #### is the 4-digit CINL number
 
 
 ## Support
