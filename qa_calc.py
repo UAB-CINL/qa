@@ -1,3 +1,4 @@
+import argparse
 import nibabel as nib
 import nilearn as nil
 import scipy.ndimage as ndi
@@ -13,10 +14,17 @@ import glob
 import re
 from datetime import datetime
 
-# load proxy images from each session
-code_dir = os.path.dirname(os.path.abspath(__file__))
+# Initialize the parser
+parser = argparse.ArgumentParser(description="Process some input parameters.")
 
-subject_dir = os.path.abspath(os.path.join(code_dir, '..', 'sub-fbirn'))
+# Add arguments
+parser.add_argument("bids_dir", type=str, help="Path to the input files")  # Required positional argument
+
+# Parse the arguments
+args = parser.parse_args()
+
+# load proxy images from each session
+subject_dir = os.path.abspath(os.path.join(args.bids_dir, 'sub-fbirn'))
 
 mean_signal_values = np.zeros(len(os.listdir(subject_dir)))
 sfnr_values = np.zeros(len(os.listdir(subject_dir)))
@@ -38,7 +46,12 @@ for index, session_dir in enumerate(glob.glob(os.path.join(subject_dir, 'ses-Qa*
         try:
             dates.append(datetime.strptime(date_str, '%m%d%Y'))
         except ValueError:
-            print("The date format is not correct.")
+            print("The date format is not correct, trying another order.")
+            try:
+                dates.append(datetime.strptime(date_str, '%Y%m%d'))
+            except ValueError:
+                print("The date format is not correct.")
+
     else:
         print("No 8-digit date string found.")
 
