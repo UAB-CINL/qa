@@ -25,13 +25,20 @@ Create a new conda environment to use with this project:
 Activate the environment before running any scripts or opening any notebooks:
 `conda activate mriqa`
 
-## Usage
+## Image Conversion
 The processing scripts use the python module nibabel to read image arrays from files in NIFTI format. Images from the MRI scanner are in DICOM format. To convert DICOM datasets to BIDS compliant NIFTI format, use heudiconv:
 `heudiconv -s YOUR_SUBJECT_NAME -ss YOUR_SESSION_NAME --files PATH_THAT_INCLUDES_ALL_YOUR_DICOM_FILES -o PATH_TO_YOUR_NIFTI_OUTPUT -f PATH_TO_YOUR_HEURISTIC_FILE -c dcm2niix -b --overwrite`
 For QA analysis:
 - YOUR_SUBJECT_NAME = fbirn
 - YOUR_SESSION_NAME = Qa_YYYYMMDD_CINL####, where YYYYMMDD is the date of the scan, and #### is the 4-digit CINL number
 
+A handy converter `convertqa.sh` handles unzipping and BIDS conversion all in one step. Input and output folder paths are defined at the top of that script. Be sure to change them if needed.
+
+## Usage
+For batch processing, longitudinal analysis, and plotting metrics, use `qa_calc.py`. 
+`python qa_calc.py '/path/to/bids'`
+For additional help (very limited at this time):
+`python qa_calc.py -h`
 
 ## Support
 If you need help with any of the scripts in this project, please contact us at cinl@uab.edu.

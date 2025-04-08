@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Define the folder paths
-ZIP_FOLDER="/mnt/d/CINL/QA_PRISMA/weekly"
-OUTPUT_FOLDER="/mnt/d/CINL/QA_PRISMA/weekly/out"
+ZIP_FOLDER="/mnt/d/CINL/QA_PREMIER/weekly"
+OUTPUT_FOLDER="/mnt/d/CINL/QA_PREMIER/weekly/out"
 TMP_UNZIP_FOLDER="$OUTPUT_FOLDER/temp_unzip"
 BIDS_OUTPUT="$OUTPUT_FOLDER/bids"
 
@@ -17,12 +17,12 @@ for zipfile in "$ZIP_FOLDER"/*.zip; do
     # Unzip the archive into the temporary folder
     unzip -q "$zipfile" -d "$TMP_UNZIP_FOLDER"
     
-    # Find the directory named "ep2d_FATES_160vols_2004bw" for PRISMA QA data
-    dicom_dir=$(find "$TMP_UNZIP_FOLDER" -type d -name "ep2d_FATES_160vols_2004bw" | head -n 1)
-    
+    # Find the directory named "Ax_fMRI_Simple_Block" for PREMIER QA data
+    dicom_dir=$(find "$TMP_UNZIP_FOLDER" -type d -name "*Ax_fMRI*" | head -n 1)
+    echo "Found 'Ax_fMRI'."
 
     if [[ -z "$dicom_dir" ]]; then
-        echo "Directory 'ep2d_FATES_160vols_2004bw' not found in $zipfile. Skipping..."
+        echo "Directory 'Ax_fMRI...' not found in $zipfile. Skipping..."
         rm -rf "$TMP_UNZIP_FOLDER"/*
         continue
     fi
@@ -33,12 +33,8 @@ for zipfile in "$ZIP_FOLDER"/*.zip; do
     zip_basename=$(basename "$zipfile" .zip)
     
     # Use regex to extract date and study ID, handling both variations
-    if [[ "$zip_basename" =~ Qa([0-9]{8})(_CINL|CINL_)?([0-9]{4})? ]]; then
+    if [[ "$zip_basename" =~ Qa_Gep_([0-9]{8})_([0-9]{7})? ]]; then
         exam_date="${BASH_REMATCH[1]}"
-        study_id="${BASH_REMATCH[3]:-0000}"  # Default to "0000" if missing
-    elif [[ "$zip_basename" =~ ([0-9]{8})Qa(_CINL|CINL_)?([0-9]{4})? ]]; then
-        exam_date="${BASH_REMATCH[1]}"
-        study_id="${BASH_REMATCH[3]:-0000}"  # Default to "0000" if missing
     else
         echo "Could not parse date or study ID from $zip_basename. Skipping..."
         rm -rf "$TMP_UNZIP_FOLDER"/*
@@ -46,7 +42,7 @@ for zipfile in "$ZIP_FOLDER"/*.zip; do
     fi
     
     # Construct standardized name
-    session_name="Qa${exam_date}_CINL${study_id}"
+    session_name="QaGEP${exam_date}"
     echo "Standardized session name: $session_name"
     
     # Move DICOM directory to the standardized name folder
@@ -58,7 +54,7 @@ for zipfile in "$ZIP_FOLDER"/*.zip; do
               -ss "$session_name" \
               --files "$standardized_folder" \
               -o "$BIDS_OUTPUT" \
-              -f heuristic1.py \
+              -f heuristicGEP.py \
               -c dcm2niix \
               -b \
               --overwrite

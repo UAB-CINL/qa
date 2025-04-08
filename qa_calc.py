@@ -153,13 +153,68 @@ for index, session_dir in enumerate(glob.glob(os.path.join(subject_dir, 'ses-Qa*
     # ------- PERCENT FLUCTUATION -------
     percent_fluctuation_values[index] = 100 * np.std(residuals) / signal_intensity
 
-print(mean_signal_values)
-print(sfnr_values)
-print(ssnvar_values)
-print(snr_values)
-print(percent_drift_values)
-print(percent_fluctuation_values)
-print(dates)
+
+print("Mean signal:", mean_signal_values)
+# grand mean
+signal_mean = np.mean(mean_signal_values)
+# standard deviation (sample)
+signal_std = np.std(mean_signal_values, ddof=1)
+# upper control limit
+signal_UCL = signal_mean + 3 * signal_std
+# lower control limit
+signal_LCL = signal_mean - 3 * signal_std
+
+print("SFNR:", sfnr_values)
+# grand mean
+sfnr_mean = np.mean(sfnr_values)
+# standard deviation (sample)
+sfnr_std = np.std(sfnr_values, ddof=1)
+# upper control limit
+sfnr_UCL = sfnr_mean + 3 * sfnr_std
+# lower control limit
+sfnr_LCL = sfnr_mean - 3 * sfnr_std
+
+print("SSNV:", ssnvar_values)
+# grand mean
+ssnvar_mean = np.mean(ssnvar_values)
+# standard deviation (sample)
+ssnvar_std = np.std(ssnvar_values, ddof=1)
+# upper control limit
+ssnvar_UCL = ssnvar_mean + 3 * ssnvar_std
+# lower control limit
+ssnvar_LCL = ssnvar_mean - 3 * ssnvar_std
+
+print("SNR:", snr_values)
+# grand mean
+snr_mean = np.mean(snr_values)
+# standard deviation (sample)
+snr_std = np.std(snr_values, ddof=1)
+# upper control limit
+snr_UCL = snr_mean + 3 * snr_std
+# lower control limit
+snr_LCL = snr_mean - 3 * snr_std
+
+print("Percent drift:", percent_drift_values)
+# grand mean
+percent_drift_mean = np.mean(percent_drift_values)
+# standard deviation (sample)
+percent_drift_std = np.std(percent_drift_values, ddof=1)
+# upper control limit
+percent_drift_UCL = percent_drift_mean + 3 * percent_drift_std
+# lower control limit
+percent_drift_LCL = percent_drift_mean - 3 * percent_drift_std
+
+print("Percent fluctuation:", percent_fluctuation_values)
+# grand mean
+percent_fluctuation_mean = np.mean(percent_fluctuation_values)
+# standard deviation (sample)
+percent_fluctuation_std = np.std(percent_fluctuation_values, ddof=1)
+# upper control limit
+percent_fluctuation_UCL = percent_fluctuation_mean + 3 * percent_fluctuation_std
+# lower control limit
+percent_fluctuation_LCL = percent_fluctuation_mean - 3 * percent_fluctuation_std
+
+print("Dates:", dates)
 
 combined = list(zip(dates, mean_signal_values, sfnr_values, ssnvar_values, snr_values, percent_drift_values, percent_fluctuation_values))
 combined.sort()
@@ -167,18 +222,63 @@ sorted_dates, sorted_mean_signal_values, sorted_sfnr_values, sorted_ssnvar_value
 print(sorted_dates)
 print(sorted_mean_signal_values)
 
+# output lists to text file
+formatted_dates = np.array([dt.strftime("%Y/%m/%d") for dt in sorted_dates])
+sorted_data = np.column_stack([formatted_dates, sorted_mean_signal_values, sorted_sfnr_values, sorted_ssnvar_values, sorted_snr_values, sorted_percent_drift_values, sorted_percent_fluctuation_values])
+# define header
+header = "Date,MeanSignal,SFNR,SSNV,SNR,PercDrift,PercFluct"
+
+np.savetxt("output.txt", sorted_data, fmt="%s", delimiter=",", header=header)
+
+print("Lists saved as columns in output.txt")
+
 fig, axs = plt.subplots(3, 2, sharex=True)
 axs[0,0].plot(sorted_dates, sorted_mean_signal_values, marker='o')
-axs[0,0].set_title("Mean Signal")
+axs[0,0].set_title("Mean Signal", fontsize=18)
+axs[0,0].axhline(signal_mean, color='g', linestyle='--', label=f'Center Line (Mean={signal_mean:.2f})', linewidth=1)
+axs[0,0].axhline(signal_UCL, color='r', linestyle='--', label=f'UCL ({signal_UCL:.2f})', linewidth=1)
+axs[0,0].axhline(signal_LCL, color='r', linestyle='--', label=f'LCL ({signal_LCL:.2f})', linewidth=1)
+
+
 axs[0,1].plot(sorted_dates, sorted_sfnr_values, marker='o')
-axs[0,1].set_title("Signal-to-Fluctuation Noise Ratio")
+axs[0,1].set_title("Signal-to-Fluctuation Noise Ratio", fontsize=18)
+axs[0,1].axhline(sfnr_mean, color='g', linestyle='--', label=f'Center Line (Mean={sfnr_mean:.2f})', linewidth=1)
+axs[0,1].axhline(sfnr_UCL, color='r', linestyle='--', label=f'UCL ({sfnr_UCL:.2f})', linewidth=1)
+axs[0,1].axhline(sfnr_LCL, color='r', linestyle='--', label=f'LCL ({sfnr_LCL:.2f})', linewidth=1)
+
+
 axs[1,0].plot(sorted_dates, sorted_ssnvar_values, marker='o')
-axs[1,0].set_title("Static Spatial Noise Variance")
+axs[1,0].set_title("Static Spatial Noise Variance", fontsize=18)
+axs[1,0].axhline(ssnvar_mean, color='g', linestyle='--', label=f'Center Line (Mean={ssnvar_mean:.2f})', linewidth=1)
+axs[1,0].axhline(ssnvar_UCL, color='r', linestyle='--', label=f'UCL ({ssnvar_UCL:.2f})', linewidth=1)
+axs[1,0].axhline(ssnvar_LCL, color='r', linestyle='--', label=f'LCL ({ssnvar_LCL:.2f})', linewidth=1)
+
+
 axs[1,1].plot(sorted_dates, sorted_snr_values, marker='o')
-axs[1,1].set_title("Signal-to-Noise Ratio")
+axs[1,1].set_title("Signal-to-Noise Ratio", fontsize=18)
+axs[1,1].axhline(snr_mean, color='g', linestyle='--', label=f'Center Line (Mean={snr_mean:.2f})', linewidth=1)
+axs[1,1].axhline(snr_UCL, color='r', linestyle='--', label=f'UCL ({snr_UCL:.2f})', linewidth=1)
+axs[1,1].axhline(snr_LCL, color='r', linestyle='--', label=f'LCL ({snr_LCL:.2f})', linewidth=1)
+
+
 axs[2,0].plot(sorted_dates, sorted_percent_drift_values, marker='o')
-axs[2,0].set_title("Percent Drift")
+axs[2,0].set_title("Percent Drift", fontsize=18)
+axs[2,0].axhline(percent_drift_mean, color='g', linestyle='--', label=f'Center Line (Mean={percent_drift_mean:.2f})', linewidth=1)
+axs[2,0].axhline(percent_drift_UCL, color='r', linestyle='--', label=f'UCL ({percent_drift_UCL:.2f})', linewidth=1)
+axs[2,0].axhline(percent_drift_LCL, color='r', linestyle='--', label=f'LCL ({percent_drift_LCL:.2f})', linewidth=1)
+
+
 axs[2,1].plot(sorted_dates, sorted_percent_fluctuation_values, marker='o')
-axs[2,1].set_title("Percent Fluctuation")
+axs[2,1].set_title("Percent Fluctuation", fontsize=18)
+axs[2,1].axhline(percent_fluctuation_mean, color='g', linestyle='--', label=f'Center Line (Mean={percent_fluctuation_mean:.2f})', linewidth=1)
+axs[2,1].axhline(percent_fluctuation_UCL, color='r', linestyle='--', label=f'UCL ({percent_fluctuation_UCL:.2f})', linewidth=1)
+axs[2,1].axhline(percent_fluctuation_LCL, color='r', linestyle='--', label=f'LCL ({percent_fluctuation_LCL:.2f})', linewidth=1)
+
+for ax in axs.flat:
+    ax.set_xlabel('Date', fontsize=14)
+    ax.set_ylabel('Value', fontsize=14)
+    ax.legend(fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+
 plt.gcf().autofmt_xdate()
 plt.show()
